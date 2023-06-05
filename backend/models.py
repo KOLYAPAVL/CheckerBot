@@ -19,6 +19,18 @@ class BotSettings(SingletonModel):
         default="",
         max_length=128,
     )
+    refill_link = models.CharField(
+        verbose_name=l_("Ссылка для пополнения"),
+        blank=True,
+        default="",
+        max_length=128,
+    )
+    channel_link = models.CharField(
+        verbose_name=l_("Ссылка на канал"),
+        blank=True,
+        default="",
+        max_length=128,
+    )
     bot_token = models.TextField(
         verbose_name=l_("Токен бота"),
         blank=False,
@@ -97,3 +109,71 @@ class PostBackEvent(models.Model):
 
     def __str__(self):
         return f"Postback event #{self.id}"
+
+
+class BotMessage(models.Model):
+
+    text = models.TextField(
+        verbose_name=l_("Текст сообщения"),
+    )
+    users = models.ManyToManyField(
+        "TelegramUser",
+        verbose_name=l_("Адресаты"),
+        blank=True,
+        help_text=l_("Если адресата оставить пустым, сообщение "
+                     "уйдет всем пользователям бота")
+    )
+    date = models.DateTimeField(
+        verbose_name=l_("Дата создания"),
+        auto_now_add=True
+    )
+
+    class Meta:
+        verbose_name = l_("Сообщение в бота")
+        verbose_name_plural = l_("Сообщения в бота")
+
+    def __str__(self):
+        return f"Сообщение в бота {self.id}"
+
+
+class TelegramUser(models.Model):
+
+    telegram_id = models.CharField(
+        verbose_name=l_("Telegram Id"),
+        blank=False,
+        max_length=64,
+        default="",
+    )
+    name = models.CharField(
+        verbose_name=l_("Имя"),
+        blank=False,
+        max_length=256,
+        default="",
+    )
+    username = models.CharField(
+        verbose_name=l_("Имя пользователя Telegram"),
+        blank=False,
+        max_length=256,
+        default="",
+        help_text="t.me/@<имя пользователя>"
+    )
+
+    class Meta:
+        verbose_name = l_("Telegram пользователь")
+        verbose_name_plural = l_("Telegram пользователи")
+
+    def __str__(self):
+        return f"Пользователь #{self.telegram_id}"
+
+
+class BotStatus(SingletonModel):
+    is_active = models.BooleanField(
+        verbose_name=l_("Активный"),
+        default=False,
+    )
+
+    class Meta:
+        verbose_name = l_("Статус бота")
+
+    def __str__(self):
+        return "Статус бота"

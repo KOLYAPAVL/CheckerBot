@@ -1,0 +1,39 @@
+version: "3.6"
+
+services:
+  bot-postgres:
+    image: postgres:12
+    shm_size: 1g
+    container_name: bot-postgres
+    command: ["postgres", "-c", "log_statement=all"]
+    environment:
+      - POSTGRES_INITDB_WALDIR=/var/log/pg_logs
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+  bot-web:
+    build: .
+    container_name: bot-web
+    depends_on:
+      - bot-postgres
+    links:
+      - bot-postgres:bot-postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DEBUG=${DEBUG}
+      - SECRET_KEY=${SECRET_KEY}
+      - LANGUAGE=${LANGUAGE}
+    ports:
+      - "8000:8000"
+    volumes:
+      - bot_volume:/bot
+    command: ./entrypoint.sh
+
+volumes:
+  bot_volume:
