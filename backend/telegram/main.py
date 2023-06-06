@@ -7,6 +7,7 @@ from backend.enum import PostBackEventChoices
 from .exceptions import (
     TokenNotFoundException
 )
+from backend.models import BotStatus, BotError
 
 if TYPE_CHECKING:
     from telebot import TeleBot
@@ -221,4 +222,15 @@ def text_message(message) -> None:
 
 
 def start_bot() -> None:
-    bot.polling(none_stop=True, interval=0)
+    bot_status = BotStatus.get_solo()
+    bot_status.is_active = True
+    bot_status.save(update_fields=("is_active",))
+    try:
+        bot.polling(none_stop=True, interval=0)
+    except Exception as e:
+        BotError.objects.create(
+            text=e,
+        )
+        bot_status.is_active = False
+        bot_status.save(update_fields=("is_active",))
+        raise e

@@ -4,6 +4,8 @@ from .models import (
     BotMessage, TelegramUser, BotStatus,
 )
 from solo.admin import SingletonModelAdmin
+from django_object_actions import DjangoObjectActions, action
+from threading import Thread
 
 
 class BotErrorAdmin(admin.ModelAdmin):
@@ -64,7 +66,18 @@ class TelegramUserAdmin(admin.ModelAdmin):
         return False
 
 
-class BotStatusAdmin(SingletonModelAdmin):
+class BotStatusAdmin(DjangoObjectActions, SingletonModelAdmin):
+
+    @action(label="Запуск бота", description="Run bot")
+    def run_bot(self, request, obj):
+        try:
+            from backend.telegram.main import start_bot
+            thread = Thread(target=start_bot)
+            thread.start()
+        except:
+            pass
+
+    change_actions = ('run_bot',)
 
     def has_delete_permission(self, request, obj=None):
         return False

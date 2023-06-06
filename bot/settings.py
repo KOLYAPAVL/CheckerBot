@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "solo",
     'backend.apps.BackendConfig',
+    "django_object_actions",
 ]
 
 MIDDLEWARE = [
@@ -76,17 +77,18 @@ WSGI_APPLICATION = 'bot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.environ.get("POSTGRES_DB"),
-        "USER": os.environ.get("POSTGRES_USER"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": "bot-postgres",
-        "DISABLE_SERVER_SIDE_CURSORS": True,
-        "PORT": "5432",
+if os.environ.get("POSTGRES_DB"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": os.environ.get("POSTGRES_DB"),
+            "USER": os.environ.get("POSTGRES_USER"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+            "HOST": "bot-postgres",
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+            "PORT": "5432",
+        }
     }
-}
 
 
 # Password validation
@@ -111,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = os.environ.get("LANGUAGE")
+LANGUAGE_CODE = os.environ.get("LANGUAGE", "ru")
 
 TIME_ZONE = 'UTC'
 
