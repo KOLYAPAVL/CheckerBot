@@ -157,6 +157,10 @@ class TelegramUser(models.Model):
         default="",
         help_text="t.me/@<имя пользователя>"
     )
+    verified = models.BooleanField(
+        verbose_name=l_("Верификация пройдена"),
+        default=False,
+    )
 
     class Meta:
         verbose_name = l_("Telegram пользователь")
@@ -177,3 +181,45 @@ class BotStatus(SingletonModel):
 
     def __str__(self):
         return "Статус бота"
+
+
+class BotText(models.Model):
+
+    ident = models.SlugField(
+        unique=True,
+        verbose_name=l_("Идентификатор сообщения"),
+        blank=False,
+        max_length=128,
+    )
+    text = models.TextField(
+        verbose_name=l_("Текст"),
+        max_length=128,
+    )
+
+    class Meta:
+        verbose_name = l_("Текст бота")
+        verbose_name_plural = l_("Тексты бота")
+
+    def __str__(self):
+        return f"Текст бота: {self.text}"
+
+
+class BotButton(models.Model):
+
+    ident = models.SlugField(
+        unique=True,
+        verbose_name=l_("Идентификатор кнопки"),
+        blank=False,
+        max_length=128,
+    )
+    text = models.TextField(
+        verbose_name=l_("Текст"),
+        max_length=128,
+    )
+
+    class Meta:
+        verbose_name = l_("Кнопка бота")
+        verbose_name_plural = l_("Кнопки бота")
+
+    def __str__(self):
+        return f"Кнопка бота: {self.text}"

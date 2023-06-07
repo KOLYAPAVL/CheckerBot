@@ -9,7 +9,7 @@ def on_create_bot_message(sender, created, instance, **kwargs) -> None:
     if created:
         users = instance.users.all()
         if users.count() == 0:
-            users = TelegramUser.objects.all()
+            users = TelegramUser.objects.filter(verified=True)
 
         chat_ids = list(users.values_list("telegram_id", flat=True))
         send_message(chat_ids, instance.text)

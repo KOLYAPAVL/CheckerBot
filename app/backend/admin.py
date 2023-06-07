@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     BotSettings, BotError, PostBackEvent,
-    BotMessage, TelegramUser, BotStatus,
+    BotMessage, TelegramUser, BotStatus, BotText,
+    BotButton,
 )
 from solo.admin import SingletonModelAdmin
 from django_object_actions import DjangoObjectActions, action
@@ -42,9 +43,6 @@ class PostBackEventAdmin(admin.ModelAdmin):
 class BotMessageAdmin(admin.ModelAdmin):
     readonly_fields = (
         "date",
-    )
-    raw_id_fields = (
-        "users",
     )
 
     def has_delete_permission(self, request, obj=None):
@@ -89,9 +87,23 @@ class BotStatusAdmin(DjangoObjectActions, SingletonModelAdmin):
         return False
 
 
+class BotTextAdmin(admin.ModelAdmin):
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class BotButtonAdmin(admin.ModelAdmin):
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 admin.site.register(BotSettings, SingletonModelAdmin)
 admin.site.register(BotError, BotErrorAdmin)
 admin.site.register(PostBackEvent, PostBackEventAdmin)
 admin.site.register(BotMessage, BotMessageAdmin)
 admin.site.register(TelegramUser, TelegramUserAdmin)
 admin.site.register(BotStatus, BotStatusAdmin)
+admin.site.register(BotText, BotTextAdmin)
+admin.site.register(BotButton, BotButtonAdmin)

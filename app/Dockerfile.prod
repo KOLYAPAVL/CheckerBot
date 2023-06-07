@@ -1,0 +1,67 @@
+###########
+# BUILDER #
+###########
+
+# Используем python 3.11
+FROM python:3.11 as builder
+
+# Ставим рабочую директорию
+WORKDIR /usr/src/app
+
+# Виртуальные переменные
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Linter
+RUN pip install --upgrade pip
+RUN pip install flake8==3.9.2
+COPY . .
+RUN flake8 --ignore=E501,F401 .
+
+# Зависимости
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+
+# Используем python 3.11
+FROM python:3.11
+
+# Создаем директорию для юзера
+RUN mkdir -p /home/app
+
+# Создаем юзера
+RUN addgroup -S app && adduser -S app -G app
+
+# Создание дирректорий
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+RUN mkdir $APP_HOME/mediafiles
+WORKDIR $APP_HOME
+
+# Зависимости
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# Копируем entrypoint.prod.sh
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
+RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+
+# Копируем проект
+COPY . $APP_HOME
+
+# Ставим права
+RUN chown -R app:app $APP_HOME
+
+# Меняем пользователя
+USER app
+
+# Запускаем entrypoint.prod.sh
+ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
